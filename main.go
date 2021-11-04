@@ -5,24 +5,24 @@ import (
 	"log"
 	"os"
 
-	// "strings"
-
-	"git.learn.01founders.co/abmutungi/ascii-art-test.git/am"
+	"git.learn.01founders.co/abmutungi/ascii-art-fs.git/am"
 )
 
 func main() {
-	// This tells it to print a new line if the arg is solely a new line.
-
 	arg := os.Args
+
+	// error handling
 	if len(arg) != 3 {
 		fmt.Print("Usage: go run . [STRING] [BANNER]\n")
 		fmt.Println()
 		fmt.Println("EX: go run . something standard")
 		os.Exit(0)
 	}
+
+	// defining argument [1] "input string" and [2] "font/banner"
 	args := os.Args[1]
 	args2 := os.Args[2]
-
+	// This tells it to print a new line if the arg is solely a new line.
 	if args == "\\n" {
 		fmt.Println()
 	} else if args != "" {

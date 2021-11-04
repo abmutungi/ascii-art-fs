@@ -2,7 +2,6 @@ package am
 
 import (
 	"bufio"
-	// "fmt"
 	"os"
 )
 
@@ -22,11 +21,10 @@ func ReadLines(path string) ([]string, error) {
 }
 
 func SplitLines(s string) [][]byte {
-
 	var count int
 
 	for i := 0; i < len(s); i++ {
-		if s[i] == 'n' && s[i-1] == '\\' {
+		if s[i] == '\\' && s[i+1] == 'n' {
 			count++
 		}
 	}
@@ -37,7 +35,7 @@ func SplitLines(s string) [][]byte {
 
 	for i := 0; i < len(splitLines); i++ {
 		for j < len(splitString) {
-			if splitString[j] == 'n' && splitString[j-1] == '\\' {
+			if splitString[j] == '\\' && splitString[j+1] == 'n' {
 				j++
 				splitLines[i] = splitLines[i][:len(splitLines[i])-1]
 				break
@@ -46,6 +44,5 @@ func SplitLines(s string) [][]byte {
 			j++
 		}
 	}
-	// fmt.Println(splitLines)
 	return splitLines
 }

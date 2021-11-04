@@ -16,44 +16,49 @@ import (
 	at run time, the second will contain the string equivalent of expected
 	output	*/
 var testCases = map[int][]string{
-	1:  {"hello", ""},
-	2:  {"HELLO", ""},
-	3:  {"HeLlo HuMaN", ""},
-	4:  {"1Hello 2There", ""},
-	5:  {"Hello\\nThere", ""},
-	6:  {"{Hello & There #}", ""},
-	7:  {"hello There 1 to 2!", ""},
-	8:  {"MaD3IrA&LiSboN", ""},
-	9:  {"1a\"#FdwHywR&/()=", ""},
-	10: {"{|}~", ""},
-	11: {"[\\]^_ 'a", ""},
-	12: {"RGB", ""},
-	13: {":;<=>?@", ""},
-	14: {"\\!\" #$%&'()*+,-./", ""},
-	15: {"ABCDEFGHIJKLMNOPQRSTUVWXYZ", ""},
-	16: {"abcdefghijklmnopqrstuvwxyz", ""},
+	1:  {"banana", "standard", "asd", ""},
+	2:  {"hello", "standard", ""},
+	3:  {"hello world", "shadow", ""},
+	4:  {"nice 2 meet you", "thinkertoy", ""},
+	5:  {"you & me", "standard", ""},
+	6:  {"123", "shadow", ""},
+	7:  {"/(\")", "thinkertoy", ""},
+	8:  {"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "shadow", ""},
+	9:  {"\"#$%&/()*+,-./", "thinkertoy", ""},
+	10: {"It's Working", "thinkertoy", ""},
 }
 
-/*	This test file tests the ascii-art project against the first 16 test cases on
-	audit page	*/
-func TestAsciiArt(t *testing.T) {
+/*	This test file tests the ascii-art project against the first 9 test cases on
+audit page	*/
+func TestAsciiArtFS(t *testing.T) {
 	getTestCases()
+
+	// Test the program with incorrect amount of args
+	output, err := exec.Command("go", "run", ".", testCases[1][0], testCases[1][1], testCases[1][2]).Output()
+	if err != nil {
+		panic(err)
+	}
+	if string(output) != testCases[1][3] {
+		t.Errorf("\nTest fails when given the arguments:\n\t\"%s\" \"%s\" \"%s\","+
+			"\nexpected:\n%s\ngot:\n%s\n\n",
+			testCases[1][0], testCases[1][1], testCases[1][2], testCases[1][3], string(output))
+	}
 
 	/*	Iterate through each test case and starting a goroutine for each, this
 		is done so instead of waiting for the previous test to complete they can
 		all be checked simulaneously	*/
 	var wg sync.WaitGroup
-	for i := 1; i <= len(testCases); i++ {
+	for i := 2; i <= len(testCases); i++ {
 		wg.Add(1)
 		go func(current []string, w *sync.WaitGroup, ti *testing.T) {
 			defer w.Done()
 			result := getResult(current)
 			/*	Fails the project if the test cases expected output doesn't match
 				the actual output	*/
-			if string(result) != current[1] {
-				ti.Errorf("\nTest fails when given the test case:\n\t\"%s\","+
+			if string(result) != current[2] {
+				ti.Errorf("\nTest fails when given the test case:\n\t\"%s\" \"%s\","+
 					"\nexpected:\n%s\ngot:\n%s\n\n",
-					current[0], current[1], string(result))
+					current[0], current[1], current[2], string(result))
 			}
 		}(testCases[i], &wg, t)
 	}
@@ -63,7 +68,7 @@ func TestAsciiArt(t *testing.T) {
 /*	This function imitates the running of "go run . string", which it then pipes
 	into a second function "cat -e" to immitate and then returns the result	*/
 func getResult(testCase []string) string {
-	first := exec.Command("go", "run", ".", testCase[0])
+	first := exec.Command("go", "run", ".", testCase[0], testCase[1])
 	second := exec.Command("cat", "-e")
 	reader, writer := io.Pipe()
 	first.Stdout = writer
@@ -95,12 +100,15 @@ func getTestCases() {
 	number := 0
 	for i, line := range lines {
 		if i == len(lines)-1 {
-			testCases[number][1] = strings.Join(lines[start:], "\n") + "\n"
+			testCases[number][len(testCases[number])-1] = strings.Join(lines[start:], "\n") + "\n"
 			break
+		}
+		if len(line) == 0 {
+			continue
 		}
 		if line[0] == '#' && line[len([]rune(line))-1] == '#' {
 			if i > 0 {
-				testCases[number][1] = strings.Join(lines[start:i], "\n") + "\n"
+				testCases[number][len(testCases[number])-1] = strings.Join(lines[start:i], "\n") + "\n"
 			}
 			start = i + 1
 			number++
